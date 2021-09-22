@@ -1,0 +1,74 @@
+---
+title: "scrapping my anime list"
+author: "ISLAH Hamza"
+output: html_document
+  
+---
+
+
+## scrapping data from myanimelist web site.
+
+```{r}
+library(rvest)
+data=data.frame()
+url="https://myanimelist.net/topanime.php?limit="
+i=0
+data=data.frame()
+while(1){
+  cat("===========page:",i+1,"================\n")
+  j=i*50;
+  actual_url=paste0(url,j,sep="")
+  pages=tryCatch(actual_url %>%
+                 as.character() %>% 
+                 read_html(),
+                 error = function(e){
+                   if(e$message=="HTTP error 404."){
+                      break }
+                 })
+  
+  amine_link= pages %>%html_nodes('.di-ib.clearfix  a:first-child')%>% html_attr("href")
+  
+  for(item in amine_link){
+    print(item)
+    subpage=item %>% read_html()
+    animeName=subpage %>%html_node('h1.title-name') %>% html_text()
+    
+    score=subpage %>% 
+    html_node('.score-label')%>%
+    html_text()%>%
+    as.numeric()
+    
+    ranked=subpage %>%
+    html_node('span.numbers.ranked strong')%>%
+    html_text()%>% 
+    sub('#','',.)%>%
+    as.numeric()
+    
+    popularity=subpage%>%
+    html_node('span.numbers.popularity strong')%>%
+    html_text()%>%
+    sub('#','',.)%>%
+    as.numeric()
+    
+    membre=subpage%>%
+    html_node('span.numbers.members strong')%>%
+    html_text()%>%
+    gsub(',','',.)%>% as.numeric()
+  
+    data=rbind(data, data.frame(animeName,score,ranked,popularity,membre))
+  }
+  
+  i=i+1
+}
+
+
+
+```
+
+
+
+```{r}
+write.csv(data,"D:\\devlopment\\R\\web scraping\\my anime liste\\data.csv",row.names = FALSE)
+```
+
+
