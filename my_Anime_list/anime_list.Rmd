@@ -15,7 +15,7 @@ url="https://myanimelist.net/topanime.php?limit="
 i=0
 data=data.frame()
 while(1){
-  cat("===========page:",i+1,"================\n")
+  cat("===========page:",i+1,"================\n") 
   j=i*50;
   actual_url=paste0(url,j,sep="")
   pages=tryCatch(actual_url %>%
@@ -23,7 +23,8 @@ while(1){
                  read_html(),
                  error = function(e){
                    if(e$message=="HTTP error 404."){
-                      break }
+                      break     #if the page doesn't exists => break the loop and finish scrapping.
+                     }
                  })
   
   amine_link= pages %>%html_nodes('.di-ib.clearfix  a:first-child')%>% html_attr("href")
@@ -62,13 +63,9 @@ while(1){
 }
 
 
-
 ```
 
 
 
-```{r}
-write.csv(data,"D:\\devlopment\\R\\web scraping\\my anime liste\\data.csv",row.names = FALSE)
-```
 
 
